@@ -1,1 +1,0 @@
-insert into t_user (c_name, c_state, c_country) values ('Foo', 'CA', 'US');
