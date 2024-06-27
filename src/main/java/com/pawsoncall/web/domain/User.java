@@ -15,20 +15,33 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String firstName;
+    private String lastName;
     private String email;
+    private String phone;
+    private String country;
+    private String postCode;
+
     private String password;
+    private String role;
 
     @OneToMany(mappedBy = "user")
     private Set<Review> reviews;
 
-    User() {}
+    public User() {}
 
-    User(String name, String email, String password) {
-        this.name = name;
+    public User(String firstName, String lastName, String email, String phone, String country,
+            String postCode, String password, String role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
+        this.phone = phone;
+        this.country = country;
+        this.postCode = postCode;
         this.password = password;
+        this.role = role;
     }
+
 
     public Long getId() {
         return this.id;
@@ -38,12 +51,12 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return this.name;
+    public String getFirstName() {
+        return this.firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String name) {
+        this.firstName = name;
     }
 
     public String getEmail() {
@@ -70,8 +83,51 @@ public class User {
         this.reviews = reviews;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setPostCode(String postCode) {
+        this.postCode = postCode;
+    }
+
+    public String getPostCode() {
+        return postCode;
+    }
+
     public String toString() {
-        return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password
-                + "]";
+        return "User(id=" + this.getId() + ", fisrtName=" + this.getFirstName() + ", lastName="
+                + this.getLastName() + ", phone=" + this.getPhone() + ", country="
+                + this.getCountry() + ", postCode=" + this.getPostCode() + ", email="
+                + this.getEmail() + ", password=" + this.getPassword() + ", role=" + this.getRole()
+                + ")";
     }
 }

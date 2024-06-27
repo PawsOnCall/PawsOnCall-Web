@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="en">
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
 
 <head>
     <meta charset="utf-8" />
@@ -14,16 +16,23 @@
 </head>
 
 <body>
-    <h1>Login</h1>
-    <div class="container unauthenticated">
-        With Google: <a href="/oauth2/authorization/google">click here</a>
-    </div>
-    <div class="container authenticated" style="display: none">
-        Logged in as: <span id="user"></span>
-        <div>
-            <button onClick="logout()" class="btn btn-primary">Logout</button>
+    <h1>Hello PawOnCall</h1>
+
+    <div class="container">
+        <div sec:authorize="isAnonymous()">
+            <a th:href="@{/login}">Login</a>
+        </div>
+        <div sec:authorize="isAuthenticated()">
+            <div style="text-align: center;">
+                <h1>Welcome, <span th:text="${userName}">User</span>!</h1>
+                <form th:action="@{/logout}" method="post">
+                    <input type="submit" value="Logout" />
+                </form>
+            </div>
+            <a th:href="@{/logout}">Logout</a>
         </div>
     </div>
+
     <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
     <script type="text/javascript">
         $
@@ -40,11 +49,11 @@
                     }
                 }
             });
-        $.get("/user", function (data) {
-            $("#user").html(data.name);
-            $(".unauthenticated").hide()
-            $(".authenticated").show()
-        });
+        // $.get("/user", function (data) {
+        //     $("#user").html(data.name);
+        //     $(".unauthenticated").hide()
+        //     $(".authenticated").show()
+        // });
         var logout = function () {
             $.post("/logout", function () {
                 $("#user").html('');

@@ -33,7 +33,7 @@ public class UserController {
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
         User user = userService.getUserById(id);
         if (user != null) {
-            user.setName(userDetails.getName());
+            user.setFirstName(userDetails.getFirstName());
             user.setEmail(userDetails.getEmail());
             user.setPassword(userDetails.getPassword());
             return ResponseEntity.ok(userService.saveUser(user));

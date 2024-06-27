@@ -25,9 +25,9 @@ public class Review {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    Review() {}
+    public Review() {}
 
-    Review(String reviewText, int rating) {
+    public Review(String reviewText, int rating) {
         this.reviewText = reviewText;
         this.rating = rating;
     }

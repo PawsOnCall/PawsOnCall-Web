@@ -29,9 +29,9 @@ public class Order {
             inverseJoinColumns = @JoinColumn(name = "product_id"))
     private Set<Product> products;
 
-    Order() {}
+    public Order() {}
 
-    Order(String orderNumber) {
+    public Order(String orderNumber) {
         this.orderNumber = orderNumber;
     }
 
