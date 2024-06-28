@@ -2,10 +2,15 @@ package com.pawsoncall.web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -14,17 +19,53 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import com.pawsoncall.web.mapper.OAuth2UserService;
+import com.pawsoncall.web.mapper.UserService;
+import com.pawsoncall.web.security.jwt.AuthEntryPointJwt;
+import com.pawsoncall.web.security.jwt.AuthTokenFilter;
 import com.pawsoncall.web.service.UsrDetailsService;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletException;
+import java.io.IOException;
+import java.util.List;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Configuration
-@EnableWebSecurity
+@EnableMethodSecurity
 public class WebSecurityConfig {
     @Autowired
     private UsrDetailsService userDetailsService;
+    @Autowired
+    private OAuth2UserService oauth2UserService;
+    @Autowired
+    private AuthEntryPointJwt unauthorizedHandler;
+    @Bean
+	public AuthTokenFilter authenticationJwtTokenFilter() {
+		return new AuthTokenFilter();
+	}
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+    
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -39,9 +80,7 @@ public class WebSecurityConfig {
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName(null);
 
-        SimpleUrlAuthenticationFailureHandler handler =
-                new SimpleUrlAuthenticationFailureHandler("/");
-
+        SimpleUrlAuthenticationFailureHandler handler = new SimpleUrlAuthenticationFailureHandler("/");
 
         // @formatter:off
 		http
@@ -50,7 +89,9 @@ public class WebSecurityConfig {
                     // bypass swagger start
                     antMatcher("/v3/**"), 
                     antMatcher("/swagger-ui/**"),
+                    antMatcher("/api/auth/**"),
                     antMatcher("/api/**"),
+                    antMatcher("/actuator/**"),
                     // bypass swagger end
                     antMatcher("/"), 
                     antMatcher("/error"),
@@ -62,27 +103,52 @@ public class WebSecurityConfig {
                     ).permitAll()
 				.anyRequest().authenticated()
 			)
-            .csrf(c -> c
-                .csrfTokenRepository(tokenRepository)
-                .csrfTokenRequestHandler(requestHandler)
-            )
+            .csrf().disable()
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .cors().and() 
+            // todo: enabled it after verification
+            // .csrf(c -> c
+            //     .csrfTokenRepository(tokenRepository)
+            //     .csrfTokenRequestHandler(requestHandler)
+            // )
             .logout(l -> l
 				.logoutSuccessUrl("/").permitAll()
 			)
             .httpBasic(Customizer.withDefaults())
             .formLogin((form) -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/home", true) // todo redirect to user prior visited page
+                .successForwardUrl("http://localhost:5173/user-dashboard")
+                // .defaultSuccessUrl("/", true) // todo redirect to user prior visited page
                 .permitAll()
             )
-            // .oauth2Login(o -> o
-            //     .failureHandler((request, response, exception) -> {
-			//     request.getSession().setAttribute("error.message", exception.getMessage());
-			//     handler.onAuthenticationFailure(request, response, exception);
-            // })
-            // )
+            .oauth2Login(o -> o
+                .loginPage("/login")
+                .failureHandler((request, response, exception) -> {
+                    request.getSession().setAttribute("error.message", exception.getMessage());
+                    handler.onAuthenticationFailure(request, response, exception);
+                })
+                .successHandler(new AuthenticationSuccessHandler() {
+                    @Override
+                    public void onAuthenticationSuccess(HttpServletRequest request,
+                            jakarta.servlet.http.HttpServletResponse response,
+                            org.springframework.security.core.Authentication authentication) throws IOException,
+                            ServletException {
+                        // check if we need to persistent in User table
+                        OAuth2User oauth2User = (OAuth2User)authentication.getPrincipal();
+                        String curEmail = oauth2User.<String>getAttribute("email");
+                        String curFirstName = oauth2User.<String>getAttribute("given_name");
+                        String curLastName = oauth2User.<String>getAttribute("family_name");
+                        oauth2UserService.onAuthenticationSuccess(curEmail, curFirstName, curLastName);
+                        response.sendRedirect("http://localhost:5173/user-dashboard");
+                    }
+                })
+            )
             ;
 		// @formatter:on
+        http.authenticationProvider(authenticationProvider());
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
@@ -91,9 +157,25 @@ public class WebSecurityConfig {
     // return new AuthEntryPoint();
     // }
 
-
     // @Autowired
-    // public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+    // public void configureGlobal(AuthenticationManagerBuilder auth) throws
+    // Exception {
     // auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     // }
+
+    // borrow idea from this theard:
+    // https://stackoverflow.com/questions/66507679/vue-google-oauth2-spring-boot-rest-api-different-ports
+    // another hard way is
+    // https://github.com/bmstefanski/spring-vue-rest-oauth2/tree/master
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // vue
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }

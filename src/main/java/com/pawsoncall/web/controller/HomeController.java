@@ -18,7 +18,12 @@ public class HomeController {
     @GetMapping(path = "/home")
     public String home(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // local provider name is email
         String userName = authentication.getName();
+        if (authentication.getPrincipal() instanceof OAuth2User) {
+            OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+            userName = oauth2User.getAttribute("email");
+        }
         model.addAttribute("userName", userName);
         return "index";
     }
