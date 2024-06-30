@@ -2,10 +2,15 @@ package com.pawsoncall.web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -19,26 +24,48 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.pawsoncall.web.mapper.OAuth2UserService;
 import com.pawsoncall.web.mapper.UserService;
+import com.pawsoncall.web.security.jwt.AuthEntryPointJwt;
+import com.pawsoncall.web.security.jwt.AuthTokenFilter;
 import com.pawsoncall.web.service.UsrDetailsService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.List;
-import jakarta.servlet.ServletException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Configuration
-@EnableWebSecurity
+@EnableMethodSecurity
 public class WebSecurityConfig {
     @Autowired
     private UsrDetailsService userDetailsService;
     @Autowired
     private OAuth2UserService oauth2UserService;
+    @Autowired
+    private AuthEntryPointJwt unauthorizedHandler;
+    @Bean
+	public AuthTokenFilter authenticationJwtTokenFilter() {
+		return new AuthTokenFilter();
+	}
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+    
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -62,6 +89,7 @@ public class WebSecurityConfig {
                     // bypass swagger start
                     antMatcher("/v3/**"), 
                     antMatcher("/swagger-ui/**"),
+                    antMatcher("/api/auth/**"),
                     antMatcher("/api/**"),
                     antMatcher("/actuator/**"),
                     // bypass swagger end
@@ -76,6 +104,8 @@ public class WebSecurityConfig {
 				.anyRequest().authenticated()
 			)
             .csrf().disable()
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .cors().and() 
             // todo: enabled it after verification
             // .csrf(c -> c
@@ -116,6 +146,9 @@ public class WebSecurityConfig {
             )
             ;
 		// @formatter:on
+        http.authenticationProvider(authenticationProvider());
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

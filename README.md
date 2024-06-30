@@ -19,6 +19,7 @@ export OAUTH2_CLIENT_SECRET=<redacted>
 export DATASOURCE_PASSWORD=<redacted>
 export DATASOURCE_URL=<redacted>
 export DATASOURCE_USERNAME=<redacted>
+export JWT_SECRET=<redacted>
 
 # run postgres with docker
 mkdir -p $HOME/local/pgdata
