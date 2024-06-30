@@ -1,39 +1,35 @@
 package com.pawsoncall.web.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import java.util.Date;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "reviews")
-public class Review {
+public class Review extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String reviewText;
+    private String comment;
     private int rating;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false, foreignKey = @ForeignKey(name = "ORDER_ID_FK"))
+    private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    private String metaData;
 
     public Review() {}
 
-    public Review(String reviewText, int rating) {
-        this.reviewText = reviewText;
-        this.rating = rating;
+    public void setMetaData(String metaData) {
+        this.metaData = metaData;
     }
 
-    public String getReviewText() {
-        return reviewText;
+    public String getMetaData() {
+        return metaData;
+    }
+
+    public String getComment() {
+        return comment;
     }
 
     public int getRating() {
@@ -44,8 +40,8 @@ public class Review {
         this.id = id;
     }
 
-    public void setReviewText(String reviewText) {
-        this.reviewText = reviewText;
+    public void setComment(String reviewText) {
+        this.comment = reviewText;
     }
 
     public void setRating(int rating) {
@@ -56,25 +52,11 @@ public class Review {
         return id;
     }
 
-    public Product getProduct() {
-        return product;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setOrder(Order order) {
+        this.order = order;
     }
-
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String toString() {
-        return "Review [id=" + id + ", reviewText=" + reviewText + ", rating=" + rating + "]";
-    }
-
 }

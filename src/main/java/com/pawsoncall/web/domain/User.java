@@ -1,18 +1,22 @@
 package com.pawsoncall.web.domain;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Set;
+import org.springframework.data.annotation.CreatedDate;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,31 +31,46 @@ public class User {
     private String provider;
     private String password;
     private String role;
-    private LocalDateTime birthday;
+    private Date birthday;
     private String photo;
     private String phoneNumber;
     private String emergencyContactName;
     private String emergencyContactPhoneNumber;
     private String paymentMethod;
+    private String metaData;
 
-    @OneToMany(mappedBy = "user")
-    private Set<Review> reviews;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private ServiceProvider serviceProvider;
 
     public User() {}
 
-    public User(String firstName, String lastName, String email, String phone, String country,
-            String postCode, String password, String role, String provider,
-            LocalDateTime birthday) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.phone = phone;
-        this.country = country;
-        this.postCode = postCode;
-        this.password = password;
-        this.role = role;
-        this.provider = provider;
-        this.birthday = birthday;
+    public void setServiceProvider(ServiceProvider serviceProvider) {
+        this.serviceProvider = serviceProvider;
+    }
+
+    public ServiceProvider getServiceProvider() {
+        return serviceProvider;
+    }
+
+    public void addServiceProvider(ServiceProvider svcProvider) {
+        svcProvider.setUser(this);
+        this.serviceProvider = svcProvider;
+    }
+
+    public void removeServiceProvider() {
+        if (serviceProvider != null) {
+            serviceProvider.setUser(null);
+            this.serviceProvider = null;
+        }
+    }
+
+    public void setMetaData(String metaData) {
+        this.metaData = metaData;
+    }
+
+    public String getMetaData() {
+        return metaData;
     }
 
     public Long getId() {
@@ -84,14 +103,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Set<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(Set<Review> reviews) {
-        this.reviews = reviews;
     }
 
     public String getRole() {
@@ -142,11 +153,11 @@ public class User {
         this.provider = provider;
     }
 
-    public LocalDateTime getBirthday() {
+    public Date getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(LocalDateTime birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 
@@ -190,16 +201,16 @@ public class User {
         this.paymentMethod = paymentMethod;
     }
 
-    public String toString() {
-        return "User(id=" + this.getId() + ", fisrtName=" + this.getFirstName() + ", lastName="
-                + this.getLastName() + ", phone=" + this.getPhone() + ", country="
-                + this.getCountry() + ", postCode=" + this.getPostCode() + ", email="
-                + this.getEmail() + ", password=" + this.getPassword() + ", role=" + this.getRole()
-                + ", provider=" + this.getProvider() + ", birthday=" + this.getBirthday()
-                + ", photo=" + this.getPhoto() + ", phoneNumber=" + this.getPhoneNumber()
-                + ", emergencyContactName=" + this.getEmergencyContactName()
-                + ", emergencyContactPhoneNumber=" + this.getEmergencyContactPhoneNumber()
-                + ", paymentMethod=" + this.getPaymentMethod() + ")";
+    // public String toString() {
+    // return "User(id=" + this.getId() + ", fisrtName=" + this.getFirstName() + ", lastName="
+    // + this.getLastName() + ", phone=" + this.getPhone() + ", country="
+    // + this.getCountry() + ", postCode=" + this.getPostCode() + ", email="
+    // + this.getEmail() + ", password=" + this.getPassword() + ", role=" + this.getRole()
+    // + ", provider=" + this.getProvider() + ", birthday=" + this.getBirthday()
+    // + ", photo=" + this.getPhoto() + ", phoneNumber=" + this.getPhoneNumber()
+    // + ", emergencyContactName=" + this.getEmergencyContactName()
+    // + ", emergencyContactPhoneNumber=" + this.getEmergencyContactPhoneNumber()
+    // + ", paymentMethod=" + this.getPaymentMethod() + ")";
 
-    }
+    // }
 }

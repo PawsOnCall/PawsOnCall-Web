@@ -35,10 +35,7 @@ public class ReviewController {
             @RequestBody Review reviewDetails) {
         Review review = reviewService.getReviewById(id);
         if (review != null) {
-            review.setProduct(reviewDetails.getProduct());
-            review.setReviewText(reviewDetails.getReviewText());
-            review.setRating(reviewDetails.getRating());
-            return ResponseEntity.ok(reviewService.saveReview(review));
+            return ResponseEntity.ok(reviewService.saveReview(reviewDetails));
         } else {
             return ResponseEntity.notFound().build();
         }

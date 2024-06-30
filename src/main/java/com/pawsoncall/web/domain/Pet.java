@@ -1,23 +1,25 @@
 package com.pawsoncall.web.domain;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 
+// 1 user has many pets, but each pet has a different name
 @Entity
-@Table(name = "pets")
-public class Pet {
+@Table(name = "pets", uniqueConstraints = @UniqueConstraint(name = "uk_pets_name_owner",
+        columnNames = {"name", "owner_id"}))
+public class Pet extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false, foreignKey = @ForeignKey(name = "OWNER_ID_FK"))
     private User owner;
 
     private String name;
     private String type;
     private String breed;
-    private LocalDateTime birthday;
+    private Date birthday;
     private String sex;
     private Long weight;
     private String microchipped;
@@ -26,7 +28,7 @@ public class Pet {
     private String friendlyWithChildren;
     private String friendlyWithDogs;
     private String friendlyWithCats;
-    private LocalDateTime adoptionDate;
+    private Date adoptionDate;
     private String description;
     private String pottyBreakSchedule;
     private String energyLevel;
@@ -37,6 +39,17 @@ public class Pet {
     private String veterinaryInfo;
     private String petInsuranceProvider;
     private String photo;
+    private String metaData;
+
+    public Pet() {}
+
+    public void setMetaData(String metaData) {
+        this.metaData = metaData;
+    }
+
+    public String getMetaData() {
+        return metaData;
+    }
 
     public Long getPetId() {
         return id;
@@ -78,11 +91,11 @@ public class Pet {
         this.breed = breed;
     }
 
-    public LocalDateTime getBirthday() {
+    public Date getBirthday() {
         return this.birthday;
     }
 
-    public void setBirthday(LocalDateTime birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 
@@ -151,11 +164,11 @@ public class Pet {
         this.friendlyWithCats = friendlyWithCats;
     }
 
-    public LocalDateTime getAdoptionDate() {
+    public Date getAdoptionDate() {
         return adoptionDate;
     }
 
-    public void setAdoptionDate(LocalDateTime adoptionDate) {
+    public void setAdoptionDate(Date adoptionDate) {
         this.adoptionDate = adoptionDate;
     }
 
