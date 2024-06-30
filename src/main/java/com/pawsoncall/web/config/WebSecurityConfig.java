@@ -32,8 +32,6 @@ import java.util.List;
 import jakarta.servlet.ServletException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-
-
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -55,9 +53,7 @@ public class WebSecurityConfig {
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName(null);
 
-        SimpleUrlAuthenticationFailureHandler handler =
-                new SimpleUrlAuthenticationFailureHandler("/");
-
+        SimpleUrlAuthenticationFailureHandler handler = new SimpleUrlAuthenticationFailureHandler("/");
 
         // @formatter:off
 		http
@@ -92,7 +88,8 @@ public class WebSecurityConfig {
             .httpBasic(Customizer.withDefaults())
             .formLogin((form) -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/home", true) // todo redirect to user prior visited page
+                .successForwardUrl("http://localhost:5173/user-dashboard")
+                // .defaultSuccessUrl("/", true) // todo redirect to user prior visited page
                 .permitAll()
             )
             .oauth2Login(o -> o
@@ -127,14 +124,16 @@ public class WebSecurityConfig {
     // return new AuthEntryPoint();
     // }
 
-
     // @Autowired
-    // public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+    // public void configureGlobal(AuthenticationManagerBuilder auth) throws
+    // Exception {
     // auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     // }
-    
-    // borrow idea from this theard: https://stackoverflow.com/questions/66507679/vue-google-oauth2-spring-boot-rest-api-different-ports
-    // another hard way is https://github.com/bmstefanski/spring-vue-rest-oauth2/tree/master
+
+    // borrow idea from this theard:
+    // https://stackoverflow.com/questions/66507679/vue-google-oauth2-spring-boot-rest-api-different-ports
+    // another hard way is
+    // https://github.com/bmstefanski/spring-vue-rest-oauth2/tree/master
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
