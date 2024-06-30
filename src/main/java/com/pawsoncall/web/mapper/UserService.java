@@ -38,6 +38,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User register(User user) {
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        user.setRole("USER");
+        User usr = userRepository.save(user);
+        usr.setPassword("");
+        return usr;
+    }
+
     public boolean existsByEmail(String email) {
         return userRepository.findByEmail(email) != null;
     }

@@ -22,16 +22,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public User registerUser(@ModelAttribute User user) {
+    public String registerUser(@ModelAttribute User user) {
         if (userService.existsByEmail(user.getEmail())) {
-            User userExists = new User();
-            userExists.setMetaData("user exist");
-            userExists.setEmail(user.getEmail());
-            return userExists;
+            return "redirect:/register?exists=true";
         }
-        User usr = userService.registerUser(user);
-        usr.setPassword(null);
-        return usr;
+        userService.registerUser(user);
+        return "redirect:/login";
     }
 
     @GetMapping("/login")

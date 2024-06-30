@@ -20,7 +20,7 @@ public class UserController {
 
     @PostMapping
     public User createUser(@RequestBody User user) {
-        return userService.saveUser(user);
+        return userService.register(user);
     }
 
     @GetMapping("/{id}")
