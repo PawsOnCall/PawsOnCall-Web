@@ -14,10 +14,20 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import com.pawsoncall.web.mapper.OAuth2UserService;
+import com.pawsoncall.web.mapper.UserService;
 import com.pawsoncall.web.service.UsrDetailsService;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import java.io.IOException;
+import jakarta.servlet.ServletException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+
 
 
 @Configuration
@@ -25,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class WebSecurityConfig {
     @Autowired
     private UsrDetailsService userDetailsService;
+    @Autowired
+    private OAuth2UserService oauth2UserService;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -75,12 +87,28 @@ public class WebSecurityConfig {
                 .defaultSuccessUrl("/home", true) // todo redirect to user prior visited page
                 .permitAll()
             )
-            // .oauth2Login(o -> o
-            //     .failureHandler((request, response, exception) -> {
-			//     request.getSession().setAttribute("error.message", exception.getMessage());
-			//     handler.onAuthenticationFailure(request, response, exception);
-            // })
-            // )
+            .oauth2Login(o -> o
+                .loginPage("/login")
+                .failureHandler((request, response, exception) -> {
+                    request.getSession().setAttribute("error.message", exception.getMessage());
+                    handler.onAuthenticationFailure(request, response, exception);
+                })
+                .successHandler(new AuthenticationSuccessHandler() {
+                    @Override
+                    public void onAuthenticationSuccess(HttpServletRequest request,
+                            jakarta.servlet.http.HttpServletResponse response,
+                            org.springframework.security.core.Authentication authentication) throws IOException,
+                            ServletException {
+                        // check if we need to persistent in User table
+                        OAuth2User oauth2User = (OAuth2User)authentication.getPrincipal();
+                        String curEmail = oauth2User.<String>getAttribute("email");
+                        String curFirstName = oauth2User.<String>getAttribute("given_name");
+                        String curLastName = oauth2User.<String>getAttribute("family_name");
+                        oauth2UserService.onAuthenticationSuccess(curEmail, curFirstName, curLastName);
+                        response.sendRedirect("/home");
+                    }
+                })
+            )
             ;
 		// @formatter:on
         return http.build();
