@@ -1,6 +1,7 @@
 package com.pawsoncall.web.mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.pawsoncall.web.domain.User;
 import java.util.List;
@@ -9,6 +10,10 @@ import java.util.List;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -26,7 +31,10 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public boolean existsByEmail(String email) {
-        return userRepository.findByEmail(email) != null;
+    public void registerUser(User user) {
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        user.setRole("USER");
+        userRepository.save(user);
     }
 }
