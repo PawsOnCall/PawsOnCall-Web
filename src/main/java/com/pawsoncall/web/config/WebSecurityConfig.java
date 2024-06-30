@@ -14,6 +14,9 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.pawsoncall.web.mapper.OAuth2UserService;
 import com.pawsoncall.web.mapper.UserService;
 import com.pawsoncall.web.service.UsrDetailsService;
@@ -25,6 +28,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -75,10 +79,13 @@ public class WebSecurityConfig {
                     ).permitAll()
 				.anyRequest().authenticated()
 			)
-            .csrf(c -> c
-                .csrfTokenRepository(tokenRepository)
-                .csrfTokenRequestHandler(requestHandler)
-            )
+            .csrf().disable()
+            .cors().and() 
+            // todo: enabled it after verification
+            // .csrf(c -> c
+            //     .csrfTokenRepository(tokenRepository)
+            //     .csrfTokenRequestHandler(requestHandler)
+            // )
             .logout(l -> l
 				.logoutSuccessUrl("/").permitAll()
 			)
@@ -106,7 +113,7 @@ public class WebSecurityConfig {
                         String curFirstName = oauth2User.<String>getAttribute("given_name");
                         String curLastName = oauth2User.<String>getAttribute("family_name");
                         oauth2UserService.onAuthenticationSuccess(curEmail, curFirstName, curLastName);
-                        response.sendRedirect("/home");
+                        response.sendRedirect("http://localhost:5173/user-dashboard");
                     }
                 })
             )
@@ -125,4 +132,18 @@ public class WebSecurityConfig {
     // public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
     // auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     // }
+    
+    // borrow idea from this theard: https://stackoverflow.com/questions/66507679/vue-google-oauth2-spring-boot-rest-api-different-ports
+    // another hard way is https://github.com/bmstefanski/spring-vue-rest-oauth2/tree/master
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // vue
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }
