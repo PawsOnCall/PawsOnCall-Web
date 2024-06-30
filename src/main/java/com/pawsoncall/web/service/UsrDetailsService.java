@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.pawsoncall.web.domain.User;
 import com.pawsoncall.web.mapper.UserRepository;
+import com.pawsoncall.web.security.services.UserDetailsImpl;
 
 @Service
 public class UsrDetailsService implements UserDetailsService {
@@ -20,7 +21,6 @@ public class UsrDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User " + email + " not found");
         }
-        return org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
-                .password(user.getPassword()).roles(user.getRole()).build();
+        return UserDetailsImpl.build(user);
     }
 }
