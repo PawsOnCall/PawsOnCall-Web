@@ -6,7 +6,7 @@ the Web Project of PawsOnCall
 
 https://www.docker.com/products/docker-desktop/
 
-# install Java JDK 22
+# install Java JDK 17
 
 https://www.oracle.com/ca-en/java/technologies/downloads/
 
