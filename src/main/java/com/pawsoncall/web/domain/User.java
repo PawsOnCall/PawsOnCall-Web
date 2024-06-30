@@ -54,12 +54,14 @@ public class User extends BaseEntity {
     private String emergencyContactPhoneNumber;
     private String paymentMethod;
     private String metaData;
+    private String mailingAddress;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private ServiceProvider serviceProvider;
 
     @Transient
@@ -75,6 +77,14 @@ public class User extends BaseEntity {
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+    }
+
+    public void setMailingAddress(String ma) {
+        this.mailingAddress = ma;
+    }
+
+    public String getMailingAddress() {
+        return this.mailingAddress;
     }
 
     public void setServiceProvider(ServiceProvider serviceProvider) {

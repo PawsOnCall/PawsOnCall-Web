@@ -24,12 +24,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pawsoncall.web.domain.ERole;
 import com.pawsoncall.web.domain.Role;
+import com.pawsoncall.web.domain.ServiceProvider;
 import com.pawsoncall.web.domain.User;
+import com.pawsoncall.web.http.request.GroomerSignupRequest;
 import com.pawsoncall.web.http.request.LoginRequest;
 import com.pawsoncall.web.http.request.SignupRequest;
 import com.pawsoncall.web.http.response.JwtResponse;
 import com.pawsoncall.web.http.response.MessageResponse;
 import com.pawsoncall.web.mapper.RoleRepository;
+import com.pawsoncall.web.mapper.ServiceProviderRepository;
 import com.pawsoncall.web.mapper.UserRepository;
 import com.pawsoncall.web.security.jwt.JwtUtils;
 import com.pawsoncall.web.security.services.UserDetailsImpl;
@@ -43,6 +46,9 @@ public class AuthController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    ServiceProviderRepository serviceProviderRepository;
 
     @Autowired
     PasswordEncoder encoder;
@@ -117,7 +123,7 @@ public class AuthController {
     }
 
     @PostMapping("/groomer/signup")
-    public ResponseEntity<?> registerGroomer(@Valid @RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<?> registerGroomer(@Valid @RequestBody GroomerSignupRequest signUpRequest) {
         if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
             return ResponseEntity
                     .badRequest()
@@ -128,7 +134,7 @@ public class AuthController {
         Set<Role> roles = new HashSet<>();
 
         if (strRoles == null) {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+            Role userRole = roleRepository.findByName(ERole.ROLE_GROOMER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(userRole);
         } else {
@@ -138,6 +144,12 @@ public class AuthController {
                         Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(adminRole);
+
+                        break;
+                    case "groomer":
+                        Role groomerRole = roleRepository.findByName(ERole.ROLE_GROOMER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(groomerRole);
 
                         break;
                     default:
@@ -153,11 +165,28 @@ public class AuthController {
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
         user.setRoles(roles);
+        user.setMailingAddress(signUpRequest.getMailingAddress());
         user.setPhoneNumber(signUpRequest.getPhoneNumber());
         user.setCity(signUpRequest.getCity());
         user.setPostCode(signUpRequest.getPostCode());
 
+        ServiceProvider sp = new ServiceProvider();
+        sp.setExperience(signUpRequest.getExperience());
+        sp.setServiceType(signUpRequest.getServiceType());
+        sp.setNumberOfPetGroomedOverPast2Years(signUpRequest.getNumberOfPetGroomedOverPast2Years());
+        sp.setPetType(signUpRequest.getPetType());
+        sp.setGotCertification(signUpRequest.isGotCertification());
+        sp.setCertificationDescription(signUpRequest.getCertificationDescription());
+        sp.setWeeklyAvailability(signUpRequest.getWeeklyAvailability());
+        sp.setBackGround(signUpRequest.getBackGround());
+        sp.setFacebookAccount(signUpRequest.getFacebookAccount());
+        sp.setInstagramAccount(signUpRequest.getInstagramAccount());
+        // save user and sp, also
+        sp.setUser(user);
+        user.setServiceProvider(sp);
+
         userRepository.save(user);
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        serviceProviderRepository.save(sp);
+        return ResponseEntity.ok(new MessageResponse("Grommer registered successfully!"));
     }
 }
