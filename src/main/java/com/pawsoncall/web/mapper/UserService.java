@@ -31,11 +31,11 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public void registerUser(User user) {
+    public User registerUser(User user) {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         user.setRole("USER");
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public boolean existsByEmail(String email) {
