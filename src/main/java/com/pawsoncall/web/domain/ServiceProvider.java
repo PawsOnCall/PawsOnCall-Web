@@ -17,14 +17,14 @@ public class ServiceProvider extends BaseEntity {
 
     private String serviceType; // Groomer, Bather
     private String experience;
-    private String numberOfPetGroomedOverPast2Years;
+    private Integer numberOfPetGroomedOverPast2Years;
     private String petType;
     private Boolean gotCertification;
     private String certificationDescription;
     private Boolean availableDoGroomingTrial;
     private Boolean ownGroomingTools;
     private String weeklyAvailability;
-    private String whyLoveGrooming;
+    private String backGround;
     private String facebookAccount;
     private String instagramAccount;
 
@@ -70,11 +70,11 @@ public class ServiceProvider extends BaseEntity {
         this.experience = experience;
     }
 
-    public String getNumberOfPetGroomedOverPast2Years() {
+    public Integer getNumberOfPetGroomedOverPast2Years() {
         return numberOfPetGroomedOverPast2Years;
     }
 
-    public void setNumberOfPetGroomedOverPast2Years(String numberOfPetGroomedOverPast2Years) {
+    public void setNumberOfPetGroomedOverPast2Years(Integer numberOfPetGroomedOverPast2Years) {
         this.numberOfPetGroomedOverPast2Years = numberOfPetGroomedOverPast2Years;
     }
 
@@ -126,12 +126,12 @@ public class ServiceProvider extends BaseEntity {
         this.weeklyAvailability = weeklyAvailability;
     }
 
-    public String getWhyLoveGrooming() {
-        return whyLoveGrooming;
+    public String getBackGround() {
+        return backGround;
     }
 
-    public void setWhyLoveGrooming(String whyLoveGrooming) {
-        this.whyLoveGrooming = whyLoveGrooming;
+    public void setBackGround(String whyLoveGrooming) {
+        this.backGround = whyLoveGrooming;
     }
 
     public String getFacebookAccount() {
