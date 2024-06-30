@@ -26,7 +26,7 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String email;
     private String phone;
-    private String country;
+    private String city;
     private String postCode;
     private String provider;
     private String password;
@@ -39,11 +39,11 @@ public class User extends BaseEntity {
     private String paymentMethod;
     private String metaData;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,
-            fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private ServiceProvider serviceProvider;
 
-    public User() {}
+    public User() {
+    }
 
     public void setServiceProvider(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
@@ -129,12 +129,12 @@ public class User extends BaseEntity {
         return phone;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setCity(String city) {
+        this.city = city;
     }
 
-    public String getCountry() {
-        return country;
+    public String getCity() {
+        return city;
     }
 
     public void setPostCode(String postCode) {
@@ -200,17 +200,4 @@ public class User extends BaseEntity {
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
-
-    // public String toString() {
-    // return "User(id=" + this.getId() + ", fisrtName=" + this.getFirstName() + ", lastName="
-    // + this.getLastName() + ", phone=" + this.getPhone() + ", country="
-    // + this.getCountry() + ", postCode=" + this.getPostCode() + ", email="
-    // + this.getEmail() + ", password=" + this.getPassword() + ", role=" + this.getRole()
-    // + ", provider=" + this.getProvider() + ", birthday=" + this.getBirthday()
-    // + ", photo=" + this.getPhoto() + ", phoneNumber=" + this.getPhoneNumber()
-    // + ", emergencyContactName=" + this.getEmergencyContactName()
-    // + ", emergencyContactPhoneNumber=" + this.getEmergencyContactPhoneNumber()
-    // + ", paymentMethod=" + this.getPaymentMethod() + ")";
-
-    // }
 }
