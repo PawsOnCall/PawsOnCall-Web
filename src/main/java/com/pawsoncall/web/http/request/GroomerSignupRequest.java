@@ -2,9 +2,12 @@ package com.pawsoncall.web.http.request;
 
 import java.util.Set;
 
+import com.pawsoncall.web.domain.ServiceProvider;
+
 import jakarta.validation.constraints.*;
 
-public class SignupRequest {
+public class GroomerSignupRequest {
+  ServiceProvider serviceProvider;
   @NotBlank
   @Size(min = 3, max = 20)
   private String firstName;
@@ -18,46 +21,11 @@ public class SignupRequest {
   @Email
   private String email;
 
-  @NotBlank
-  private String phoneNumber;
+  private Set<String> role;
 
   @NotBlank
   @Size(min = 6, max = 40)
   private String password;
-
-  @NotBlank
-  private String city;
-  @NotBlank
-  private String postCode;
-
-  private Set<String> role;
-
-  SignupRequest() {
-  }
-
-  public String getPhoneNumber() {
-    return phoneNumber;
-  }
-
-  public void setPhoneNumber(String phoneNumber) {
-    this.phoneNumber = phoneNumber;
-  }
-
-  public void setCity(String city) {
-    this.city = city;
-  }
-
-  public String getCity() {
-    return city;
-  }
-
-  public String getPostCode() {
-    return postCode;
-  }
-
-  public void setPostCode(String postCode) {
-    this.postCode = postCode;
-  }
 
   public String getLastName() {
     return lastName;
