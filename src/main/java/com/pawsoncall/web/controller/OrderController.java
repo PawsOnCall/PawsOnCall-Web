@@ -35,7 +35,7 @@ public class OrderController {
         Order order = orderService.getOrderById(id);
         if (order != null) {
             order.setOrderNumber(orderDetails.getOrderNumber());
-            order.setProducts(orderDetails.getProducts());
+            order.setServices(orderDetails.getServices());
             return ResponseEntity.ok(orderService.saveOrder(order));
         } else {
             return ResponseEntity.notFound().build();
