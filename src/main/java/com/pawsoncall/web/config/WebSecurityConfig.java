@@ -63,6 +63,7 @@ public class WebSecurityConfig {
                     antMatcher("/v3/**"), 
                     antMatcher("/swagger-ui/**"),
                     antMatcher("/api/**"),
+                    antMatcher("/actuator/**"),
                     // bypass swagger end
                     antMatcher("/"), 
                     antMatcher("/error"),
