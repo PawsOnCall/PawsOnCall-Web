@@ -1,5 +1,6 @@
 package com.pawsoncall.web.domain;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +27,12 @@ public class User {
     private String provider;
     private String password;
     private String role;
+    private LocalDateTime birthday;
+    private String photo;
+    private String phoneNumber;
+    private String emergencyContactName;
+    private String emergencyContactPhoneNumber;
+    private String paymentMethod;
 
     @OneToMany(mappedBy = "user")
     private Set<Review> reviews;
@@ -33,7 +40,8 @@ public class User {
     public User() {}
 
     public User(String firstName, String lastName, String email, String phone, String country,
-            String postCode, String password, String role, String provider) {
+            String postCode, String password, String role, String provider,
+            LocalDateTime birthday) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -43,6 +51,7 @@ public class User {
         this.password = password;
         this.role = role;
         this.provider = provider;
+        this.birthday = birthday;
     }
 
     public Long getId() {
@@ -133,11 +142,64 @@ public class User {
         this.provider = provider;
     }
 
+    public LocalDateTime getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(LocalDateTime birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getEmergencyContactName() {
+        return emergencyContactName;
+    }
+
+    public void setEmergencyContactName(String emergencyContactName) {
+        this.emergencyContactName = emergencyContactName;
+    }
+
+    public String getEmergencyContactPhoneNumber() {
+        return emergencyContactPhoneNumber;
+    }
+
+    public void setEmergencyContactPhoneNumber(String emergencyContactPhoneNumber) {
+        this.emergencyContactPhoneNumber = emergencyContactPhoneNumber;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
     public String toString() {
         return "User(id=" + this.getId() + ", fisrtName=" + this.getFirstName() + ", lastName="
                 + this.getLastName() + ", phone=" + this.getPhone() + ", country="
                 + this.getCountry() + ", postCode=" + this.getPostCode() + ", email="
                 + this.getEmail() + ", password=" + this.getPassword() + ", role=" + this.getRole()
-                + ", provider=" + this.getProvider() + ")";
+                + ", provider=" + this.getProvider() + ", birthday=" + this.getBirthday()
+                + ", photo=" + this.getPhoto() + ", phoneNumber=" + this.getPhoneNumber()
+                + ", emergencyContactName=" + this.getEmergencyContactName()
+                + ", emergencyContactPhoneNumber=" + this.getEmergencyContactPhoneNumber()
+                + ", paymentMethod=" + this.getPaymentMethod() + ")";
+
     }
 }
