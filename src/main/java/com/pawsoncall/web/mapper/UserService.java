@@ -1,19 +1,19 @@
 package com.pawsoncall.web.mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.pawsoncall.web.domain.User;
+import com.pawsoncall.web.util.Provider;
 import java.util.List;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -36,5 +36,9 @@ public class UserService {
         user.setPassword(encodedPassword);
         user.setRole("USER");
         userRepository.save(user);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email) != null;
     }
 }

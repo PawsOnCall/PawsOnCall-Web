@@ -23,6 +23,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@ModelAttribute User user) {
+        if (userService.existsByEmail(user.getEmail())) {
+            return "redirect:/register?exists=true";
+        }
         userService.registerUser(user);
         return "redirect:/login";
     }
