@@ -24,7 +24,7 @@ export JWT_SECRET=<redacted>
 # run postgres with docker
 mkdir -p $HOME/local/pgdata
 docker rm -f pawoncall-db
-docker run -d --name pawoncall-db -e POSTGRES_DB=pawoncall -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD="${DATASOURCE_PASSWORD}"-v "${HOME}"/local/pgdata:/var/lib/postgresql/data -p 5432:5432 --restart always postgres
+docker run -d --name pawoncall-db -e POSTGRES_DB=pawoncall -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD="${DATASOURCE_PASSWORD}" -v "${HOME}"/local/pgdata:/var/lib/postgresql/data -p 5432:5432 --restart always postgres
 
 # run spring boot
 ./mvnw spring-boot:run
@@ -37,6 +37,7 @@ http://localhost:8080/
 ```
 
 # Checking database
+
 ```bash
 docker exec -it pawoncall-db bash
 # switch user
