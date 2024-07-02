@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.data.annotation.CreatedDate;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,11 +41,11 @@ public class User extends BaseEntity {
     @Column(unique = true)
     @NotBlank
     private String email;
-    private String phone;
     private String city;
     private String postCode;
     private String provider;
     @NotBlank
+    @JsonIgnore
     private String password;
     private Date birthday;
     private String photo;
@@ -51,12 +54,14 @@ public class User extends BaseEntity {
     private String emergencyContactPhoneNumber;
     private String paymentMethod;
     private String metaData;
+    private String mailingAddress;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private ServiceProvider serviceProvider;
 
     @Transient
@@ -72,6 +77,14 @@ public class User extends BaseEntity {
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+    }
+
+    public void setMailingAddress(String ma) {
+        this.mailingAddress = ma;
+    }
+
+    public String getMailingAddress() {
+        return this.mailingAddress;
     }
 
     public void setServiceProvider(ServiceProvider serviceProvider) {
@@ -140,14 +153,6 @@ public class User extends BaseEntity {
 
     public String getLastName() {
         return lastName;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getPhone() {
-        return phone;
     }
 
     public void setCity(String city) {
