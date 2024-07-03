@@ -9,23 +9,26 @@ import com.ruoyi.common.core.domain.model.RegisterBody;
 import com.ruoyi.common.utils.bean.BeanUtils;
 import com.ruoyi.framework.web.service.SysRegisterService;
 import com.ruoyi.system.mapper.SysUserMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AccountService {
-    private final SysRegisterService registerService;
+    @Autowired
+    private SysRegisterService registerService;
 
-    private final UserInfoMapper userInfoMapper;
+    @Autowired
+    private UserInfoMapper userInfoMapper;
 
-    private final SysUserMapper sysUserMapper;
-
-    public AccountService(SysRegisterService registerService, UserInfoMapper userInfoMapper, SysUserMapper sysUserMapper) {
-        this.registerService = registerService;
-        this.userInfoMapper = userInfoMapper;
-        this.sysUserMapper = sysUserMapper;
-    }
+    @Autowired
+    private SysUserMapper sysUserMapper;
 
     public Boolean register(UserInfo userInfo) {
+        UserInfo user = userInfoMapper.selectOne(new LambdaQueryWrapper<UserInfo>().eq(UserInfo::getEmail, userInfo.getEmail()));
+        if (user != null) {
+            throw new RuntimeException("email already existed");
+        }
+
         RegisterBody registerBody = new RegisterBody();
         registerBody.setUsername(userInfo.getEmail());
         registerBody.setPassword(userInfo.getPassword());
