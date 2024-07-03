@@ -9,7 +9,7 @@ public class Photo {
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    private Long userId;
+    private Integer targetId;
 
     private String type;
 

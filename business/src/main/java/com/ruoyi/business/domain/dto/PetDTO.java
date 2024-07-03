@@ -1,4 +1,4 @@
-package com.ruoyi.business.domain;
+package com.ruoyi.business.domain.dto;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class Pet {
+public class PetDTO {
     @TableId(type = IdType.AUTO)
     private Integer id;
 
@@ -43,4 +43,5 @@ public class Pet {
 
     private String about;
 
+    private String photo;
 }

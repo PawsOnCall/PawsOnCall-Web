@@ -1,7 +1,7 @@
 package com.ruoyi.business.controller;
 
-import com.ruoyi.business.domain.Customer;
-import com.ruoyi.business.domain.Photo;
+import com.ruoyi.business.domain.dto.CustomerDTO;
+import com.ruoyi.business.domain.dto.PetDTO;
 import com.ruoyi.business.service.CustomerService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -16,24 +16,23 @@ public class CustomerController extends BaseController {
     private CustomerService customerService;
 
     @GetMapping("/getProfile")
-    public R<Customer> getProfile(Long userId) {
+    public R<CustomerDTO> getProfile(Long userId) {
         return R.ok(customerService.getProfile(userId));
     }
 
     @PostMapping("/saveProfile")
-    public R<Boolean> saveProfile(@RequestBody Customer customer) {
-        return R.ok(customerService.saveProfile(customer));
+    public R<Boolean> saveProfile(@RequestBody CustomerDTO customerDTO) {
+        return R.ok(customerService.saveProfile(customerDTO));
     }
 
-    @GetMapping("/getPhoto")
-    public R<Photo> getPhoto(Long userId) {
-        return R.ok(customerService.getPhoto(userId));
+    @GetMapping("/getPet")
+    public R<PetDTO> getPet(Integer id) {
+        return R.ok(customerService.getPet(id));
     }
 
-    @PostMapping("/savePhoto")
-    public R<Boolean> savePhoto(@RequestBody Photo photo) {
-        return R.ok(customerService.savePhoto(photo));
+    @PostMapping("/savePet")
+    public R<Boolean> savePet(@RequestBody PetDTO petDTO) {
+        return R.ok(customerService.savePet(petDTO));
     }
-
 }
 

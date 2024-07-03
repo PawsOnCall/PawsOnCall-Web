@@ -2,11 +2,17 @@ package com.ruoyi.business.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.business.domain.Customer;
+import com.ruoyi.business.domain.Pet;
 import com.ruoyi.business.domain.Photo;
+import com.ruoyi.business.domain.dto.CustomerDTO;
+import com.ruoyi.business.domain.dto.PetDTO;
 import com.ruoyi.business.mapper.CustomerMapper;
+import com.ruoyi.business.mapper.PetMapper;
 import com.ruoyi.business.mapper.PhotoMapper;
+import com.ruoyi.common.utils.bean.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CustomerService {
@@ -16,34 +22,105 @@ public class CustomerService {
     @Autowired
     private PhotoMapper photoMapper;
 
-    public Boolean saveProfile(Customer customer) {
-        Customer profile = getProfile(customer.getUserId());
-        if (profile == null) {
+    @Autowired
+    private PetMapper petMapper;
+
+    public CustomerDTO getProfile(Long userId) {
+        Customer customer = customerMapper.selectOne(new LambdaQueryWrapper<Customer>().eq(Customer::getUserId, userId));
+        if (customer != null) {
+            CustomerDTO retVal = new CustomerDTO();
+            BeanUtils.copyBeanProp(retVal, customer);
+
+            Photo photo = photoMapper.selectOne(new LambdaQueryWrapper<Photo>()
+                    .eq(Photo::getTargetId, customer.getId())
+                    .eq(Photo::getType, "customer"));
+            if (photo != null) {
+                retVal.setPhoto(photo.getBase64());
+            }
+            return retVal;
+        } else {
+            return null;
+        }
+    }
+
+    @Transactional
+    public Boolean saveProfile(CustomerDTO customerDTO) {
+        Customer customer = new Customer();
+        BeanUtils.copyBeanProp(customer, customerDTO);
+        CustomerDTO customerDTOInDb = getProfile(customerDTO.getUserId());
+        if (customerDTOInDb == null) {
             customerMapper.insert(customer);
         } else {
-            customer.setId(profile.getId());
+            customer.setId(customerDTOInDb.getId());
             customerMapper.updateById(customer);
         }
-        return true;
-    }
 
-    public Customer getProfile(Long userId) {
-        return customerMapper.selectOne(new LambdaQueryWrapper<Customer>().eq(Customer::getUserId, userId));
-    }
-
-    public Boolean savePhoto(Photo photo) {
-        photo.setType("customer");
-        Photo photoInDb = getPhoto(photo.getUserId());
+        Photo photoInDb = photoMapper.selectOne(new LambdaQueryWrapper<Photo>()
+                .eq(Photo::getTargetId, customer.getId())
+                .eq(Photo::getType, "customer"));
+        Photo photo = new Photo();
         if (photoInDb == null) {
+            photo.setType("customer");
+            photo.setTargetId(customer.getId());
+            photo.setBase64(customerDTO.getPhoto());
             photoMapper.insert(photo);
         } else {
+            BeanUtils.copyBeanProp(photo, photoInDb);
             photo.setId(photoInDb.getId());
+            photo.setBase64(customerDTO.getPhoto());
             photoMapper.updateById(photo);
         }
+
         return true;
     }
 
-    public Photo getPhoto(Long userId) {
-        return photoMapper.selectOne(new LambdaQueryWrapper<Photo>().eq(Photo::getUserId, userId));
+
+    public PetDTO getPet(Integer id) {
+        Pet pet = petMapper.selectById(id);
+        if (pet != null) {
+            PetDTO retVal = new PetDTO();
+            BeanUtils.copyBeanProp(retVal, pet);
+
+            Photo photo = photoMapper.selectOne(new LambdaQueryWrapper<Photo>()
+                    .eq(Photo::getTargetId, pet.getId())
+                    .eq(Photo::getType, "pet"));
+            if (photo != null) {
+                retVal.setPhoto(photo.getBase64());
+            }
+            return retVal;
+        } else {
+            return null;
+        }
     }
+
+    public Boolean savePet(PetDTO petDTO) {
+        Pet pet = new Pet();
+        BeanUtils.copyBeanProp(pet, petDTO);
+        PetDTO petDTOInDb = getPet(petDTO.getId());
+        if (petDTOInDb == null) {
+            petMapper.insert(pet);
+        } else {
+            pet.setId(petDTOInDb.getId());
+            petMapper.updateById(pet);
+        }
+
+        Photo photoInDb = photoMapper.selectOne(new LambdaQueryWrapper<Photo>()
+                .eq(Photo::getTargetId, pet.getId())
+                .eq(Photo::getType, "pet"));
+        Photo photo = new Photo();
+        if (photoInDb == null) {
+            photo.setType("pet");
+            photo.setTargetId(pet.getId());
+            photo.setBase64(petDTO.getPhoto());
+            photoMapper.insert(photo);
+        } else {
+            BeanUtils.copyBeanProp(photo, photoInDb);
+            photo.setId(photoInDb.getId());
+            photo.setBase64(petDTO.getPhoto());
+            photoMapper.updateById(photo);
+        }
+
+        return true;
+    }
+
 }
