@@ -49,6 +49,7 @@ public class CustomerService {
         BeanUtils.copyBeanProp(customer, customerDTO);
         CustomerDTO customerDTOInDb = getProfile(customerDTO.getUserId());
         if (customerDTOInDb == null) {
+            customer.setId(null);
             customerMapper.insert(customer);
         } else {
             customer.setId(customerDTOInDb.getId());
@@ -63,11 +64,12 @@ public class CustomerService {
             photo.setType("customer");
             photo.setTargetId(customer.getId());
             photo.setBase64(customerDTO.getPhoto());
+            photo.setId(null);
             photoMapper.insert(photo);
         } else {
             BeanUtils.copyBeanProp(photo, photoInDb);
-            photo.setId(photoInDb.getId());
             photo.setBase64(customerDTO.getPhoto());
+            photo.setId(photoInDb.getId());
             photoMapper.updateById(photo);
         }
 
@@ -98,6 +100,7 @@ public class CustomerService {
         BeanUtils.copyBeanProp(pet, petDTO);
         PetDTO petDTOInDb = getPet(petDTO.getId());
         if (petDTOInDb == null) {
+            pet.setId(null);
             petMapper.insert(pet);
         } else {
             pet.setId(petDTOInDb.getId());
@@ -112,11 +115,12 @@ public class CustomerService {
             photo.setType("pet");
             photo.setTargetId(pet.getId());
             photo.setBase64(petDTO.getPhoto());
+            photo.setId(null);
             photoMapper.insert(photo);
         } else {
             BeanUtils.copyBeanProp(photo, photoInDb);
-            photo.setId(photoInDb.getId());
             photo.setBase64(petDTO.getPhoto());
+            photo.setId(photoInDb.getId());
             photoMapper.updateById(photo);
         }
 
