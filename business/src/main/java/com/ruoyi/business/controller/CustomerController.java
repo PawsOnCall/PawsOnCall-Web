@@ -1,6 +1,7 @@
 package com.ruoyi.business.controller;
 
 import com.ruoyi.business.domain.dto.CustomerDTO;
+import com.ruoyi.business.domain.dto.CustomerDashboardDTO;
 import com.ruoyi.business.domain.dto.PetDTO;
 import com.ruoyi.business.service.CustomerService;
 import com.ruoyi.common.core.controller.BaseController;
@@ -34,5 +35,11 @@ public class CustomerController extends BaseController {
     public R<Boolean> savePet(@RequestBody PetDTO petDTO) {
         return R.ok(customerService.savePet(petDTO));
     }
+
+    @GetMapping("/dashboard")
+    public R<CustomerDashboardDTO> dashboard(Long userId) {
+        return R.ok(customerService.dashboard(userId));
+    }
+
 }
 

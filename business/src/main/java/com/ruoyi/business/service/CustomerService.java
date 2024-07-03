@@ -1,18 +1,18 @@
 package com.ruoyi.business.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.ruoyi.business.domain.Customer;
-import com.ruoyi.business.domain.Pet;
-import com.ruoyi.business.domain.Photo;
+import com.ruoyi.business.domain.*;
 import com.ruoyi.business.domain.dto.CustomerDTO;
+import com.ruoyi.business.domain.dto.CustomerDashboardDTO;
 import com.ruoyi.business.domain.dto.PetDTO;
-import com.ruoyi.business.mapper.CustomerMapper;
-import com.ruoyi.business.mapper.PetMapper;
-import com.ruoyi.business.mapper.PhotoMapper;
+import com.ruoyi.business.mapper.*;
 import com.ruoyi.common.utils.bean.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
@@ -24,6 +24,12 @@ public class CustomerService {
 
     @Autowired
     private PetMapper petMapper;
+
+    @Autowired
+    private UserInfoMapper userInfoMapper;
+
+    @Autowired
+    private PaymentMapper paymentMapper;
 
     public CustomerDTO getProfile(Long userId) {
         Customer customer = customerMapper.selectOne(new LambdaQueryWrapper<Customer>().eq(Customer::getUserId, userId));
@@ -127,4 +133,26 @@ public class CustomerService {
         return true;
     }
 
+    public CustomerDashboardDTO dashboard(Long userId) {
+        UserInfo userInfo = userInfoMapper.selectOne(new LambdaQueryWrapper<UserInfo>().eq(UserInfo::getUserId, userId));
+        if (userInfo != null) {
+            CustomerDashboardDTO retVal = new CustomerDashboardDTO();
+            BeanUtils.copyBeanProp(retVal, userInfo);
+
+            CustomerDTO profile = getProfile(userId);
+            retVal.setPhoto(profile.getPhoto());
+
+            Payment payment = paymentMapper.selectOne(new LambdaQueryWrapper<Payment>()
+                    .eq(Payment::getUserId, userId));
+            retVal.setBalance(payment.getBalance());
+
+            List<Pet> pets = petMapper.selectList(new LambdaQueryWrapper<Pet>()
+                    .eq(Pet::getUserId, userId));
+            retVal.setPets(pets.stream().map(pet -> getPet(pet.getId())).collect(Collectors.toList()));
+
+            return retVal;
+        } else {
+            return null;
+        }
+    }
 }
