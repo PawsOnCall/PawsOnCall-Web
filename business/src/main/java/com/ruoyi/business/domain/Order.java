@@ -16,7 +16,11 @@ public class Order {
 
     private Long providerUserId;
 
+    private String providerName;
+
     private Long consumerUserId;
+
+    private String consumerName;
 
     private BigDecimal groomerFee;
 

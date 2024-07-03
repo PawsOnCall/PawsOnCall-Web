@@ -42,4 +42,15 @@ public class PaymentService {
             return false;
         }
     }
+
+    public Boolean withdraw(Long userId, BigDecimal balance) {
+        Payment payment = getPayment(userId);
+        if (payment != null) {
+            payment.setBalance(payment.getBalance().subtract(balance));
+            paymentMapper.updateById(payment);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

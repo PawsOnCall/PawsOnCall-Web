@@ -29,5 +29,10 @@ public class PaymentController extends BaseController {
     public R<Boolean> recharge(Long userId, BigDecimal balance) {
         return R.ok(paymentService.recharge(userId, balance));
     }
+
+    @GetMapping("/withdraw")
+    public R<Boolean> withdraw(Long userId, BigDecimal balance) {
+        return R.ok(paymentService.withdraw(userId, balance));
+    }
 }
 
