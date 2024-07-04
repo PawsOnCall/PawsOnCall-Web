@@ -2,6 +2,8 @@ package com.ruoyi.business.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.business.domain.*;
+import com.ruoyi.business.domain.dto.CustomerDTO;
+import com.ruoyi.business.domain.dto.GroomerCustomerViewDTO;
 import com.ruoyi.business.domain.dto.GroomerDTO;
 import com.ruoyi.business.domain.dto.GroomerDashboardDTO;
 import com.ruoyi.business.mapper.*;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GroomerService {
@@ -31,6 +34,9 @@ public class GroomerService {
 
     @Autowired
     private AvailableDateMapper availableDateMapper;
+
+    @Autowired
+    private CustomerService customerService;
 
     public GroomerDTO getProfile(Long userId) {
         Groomer groomer = groomerMapper.selectOne(new LambdaQueryWrapper<Groomer>().eq(Groomer::getUserId, userId));
@@ -134,5 +140,25 @@ public class GroomerService {
             availableDateMapper.insert(availableDate);
         });
         return true;
+    }
+
+    public GroomerCustomerViewDTO customerView(Long userId) {
+        GroomerCustomerViewDTO retVal = new GroomerCustomerViewDTO();
+        GroomerDTO profile = getProfile(userId);
+        BeanUtils.copyBeanProp(retVal, profile);
+
+        retVal.setAvailableDates(getAvailableDate(userId));
+
+        List<OrderInfo> orderInfos = orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
+                .eq(OrderInfo::getProviderUserId, userId));
+        retVal.setReviews(orderInfos.stream().map(orderInfo -> {
+            GroomerCustomerViewDTO.Review review = new GroomerCustomerViewDTO.Review();
+            BeanUtils.copyBeanProp(review, orderInfo);
+            CustomerDTO customerProfile = customerService.getProfile(orderInfo.getConsumerUserId());
+            review.setPhoto(customerProfile.getPhoto());
+            return review;
+        }).collect(Collectors.toList()));
+
+        return retVal;
     }
 }

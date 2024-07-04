@@ -1,6 +1,7 @@
 package com.ruoyi.business.controller;
 
 import com.ruoyi.business.domain.AvailableDate;
+import com.ruoyi.business.domain.dto.GroomerCustomerViewDTO;
 import com.ruoyi.business.domain.dto.GroomerDTO;
 import com.ruoyi.business.domain.dto.GroomerDashboardDTO;
 import com.ruoyi.business.service.GroomerService;
@@ -46,6 +47,11 @@ public class GroomerController extends BaseController {
     @PostMapping("/setAvailableDate")
     public R<Boolean> setAvailableDate(@RequestBody List<AvailableDate> availableDates) {
         return R.ok(groomerService.setAvailableDate(availableDates));
+    }
+
+    @GetMapping("/customerView")
+    public R<GroomerCustomerViewDTO> customerView(Long userId) {
+        return R.ok(groomerService.customerView(userId));
     }
 
 }
