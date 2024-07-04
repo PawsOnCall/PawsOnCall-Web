@@ -1,11 +1,11 @@
 package com.ruoyi.business.domain.dto;
 
-import com.ruoyi.business.domain.Customer;
+import com.ruoyi.business.domain.Groomer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class CustomerDTO extends Customer {
+public class GroomerDTO extends Groomer {
     private String photo;
 }

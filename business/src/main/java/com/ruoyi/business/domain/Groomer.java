@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class Groomer {
     @TableId(type = IdType.AUTO)
@@ -42,4 +44,34 @@ public class Groomer {
     private String facebook;
 
     private String instagram;
+
+    private String country;
+
+    private String street;
+
+    private String streetNumber;
+
+    private String locality;
+
+    private String postCode;
+
+    private String areaLevel1;
+
+    private String areaLevel2;
+
+    private String serviceType;
+
+    private BigDecimal serviceFee;
+
+    private String serviceCanceledPolicy;
+
+    private String acceptedDogAge;
+
+    private String acceptedDogSize;
+
+    private String otherPetTypes;
+
+    private String headline;
+
+    private String description;
 }

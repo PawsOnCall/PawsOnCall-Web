@@ -1,6 +1,6 @@
 package com.ruoyi.business.controller;
 
-import com.ruoyi.business.domain.Order;
+import com.ruoyi.business.domain.OrderInfo;
 import com.ruoyi.business.service.OrderService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -16,13 +16,13 @@ public class OrderController extends BaseController {
     private OrderService orderService;
 
     @GetMapping("/getOrders")
-    public R<List<Order>> getOrders(Long userId, String userType) {
+    public R<List<OrderInfo>> getOrders(Long userId, String userType) {
         return R.ok(orderService.getOrders(userId, userType));
     }
 
     @PostMapping("/crateOrder")
-    public R<Boolean> crateOrder(@RequestBody Order order) {
-        return R.ok(orderService.crateOrder(order));
+    public R<Boolean> crateOrder(@RequestBody OrderInfo orderInfo) {
+        return R.ok(orderService.crateOrder(orderInfo));
     }
 
 }

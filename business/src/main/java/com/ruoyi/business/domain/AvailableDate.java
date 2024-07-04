@@ -14,4 +14,6 @@ public class AvailableDate {
     private Long userId;
 
     private Date availableDate;
+
+    private String status;
 }
