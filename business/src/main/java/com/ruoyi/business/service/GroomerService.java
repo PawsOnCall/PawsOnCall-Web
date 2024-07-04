@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class GroomerService {
     @Autowired
@@ -25,7 +27,10 @@ public class GroomerService {
     private PaymentMapper paymentMapper;
 
     @Autowired
-    private OrderMapper orderMapper;
+    private OrderInfoMapper orderInfoMapper;
+
+    @Autowired
+    private AvailableDateMapper availableDateMapper;
 
     public GroomerDTO getProfile(Long userId) {
         Groomer groomer = groomerMapper.selectOne(new LambdaQueryWrapper<Groomer>().eq(Groomer::getUserId, userId));
@@ -93,7 +98,7 @@ public class GroomerService {
                 retVal.setBalance(payment.getBalance());
             }
 
-            retVal.setNotifications(orderMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
+            retVal.setNotifications(orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
                     .eq(OrderInfo::getProviderUserId, userId)
                     .eq(OrderInfo::getStatus, "PENDING")));
 
@@ -115,5 +120,19 @@ public class GroomerService {
         } else {
             return false;
         }
+    }
+
+    public List<AvailableDate> getAvailableDate(Long userId) {
+        return availableDateMapper.selectList(new LambdaQueryWrapper<AvailableDate>()
+                .eq(AvailableDate::getUserId, userId));
+    }
+
+    @Transactional
+    public Boolean setAvailableDate(List<AvailableDate> availableDates) {
+        availableDates.forEach(availableDate -> {
+            availableDate.setStatus("AVAILABLE");
+            availableDateMapper.insert(availableDate);
+        });
+        return true;
     }
 }

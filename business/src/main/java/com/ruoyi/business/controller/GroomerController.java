@@ -1,5 +1,6 @@
 package com.ruoyi.business.controller;
 
+import com.ruoyi.business.domain.AvailableDate;
 import com.ruoyi.business.domain.dto.GroomerDTO;
 import com.ruoyi.business.domain.dto.GroomerDashboardDTO;
 import com.ruoyi.business.service.GroomerService;
@@ -7,6 +8,8 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/groomer")
@@ -33,6 +36,16 @@ public class GroomerController extends BaseController {
     @GetMapping("/dashboard")
     public R<GroomerDashboardDTO> dashboard(Long userId) {
         return R.ok(groomerService.dashboard(userId));
+    }
+
+    @GetMapping("/getAvailableDate")
+    public R<List<AvailableDate>> getAvailableDate(Long userId) {
+        return R.ok(groomerService.getAvailableDate(userId));
+    }
+
+    @PostMapping("/setAvailableDate")
+    public R<Boolean> setAvailableDate(@RequestBody List<AvailableDate> availableDates) {
+        return R.ok(groomerService.setAvailableDate(availableDates));
     }
 
 }
