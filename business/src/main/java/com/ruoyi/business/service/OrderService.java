@@ -1,13 +1,22 @@
 package com.ruoyi.business.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.ruoyi.business.domain.AvailableDate;
+import com.ruoyi.business.domain.Groomer;
 import com.ruoyi.business.domain.OrderInfo;
-import com.ruoyi.business.mapper.CustomerMapper;
+import com.ruoyi.business.domain.Payment;
+import com.ruoyi.business.domain.dto.CreateOrderDTO;
+import com.ruoyi.business.domain.dto.EvaluateOrderDTO;
+import com.ruoyi.business.mapper.AvailableDateMapper;
 import com.ruoyi.business.mapper.GroomerMapper;
 import com.ruoyi.business.mapper.OrderInfoMapper;
+import com.ruoyi.business.mapper.PaymentMapper;
+import com.ruoyi.common.utils.bean.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -16,10 +25,13 @@ public class OrderService {
     private OrderInfoMapper orderInfoMapper;
 
     @Autowired
-    private CustomerMapper customerMapper;
+    private GroomerMapper groomerMapper;
 
     @Autowired
-    private GroomerMapper groomerMapper;
+    private PaymentMapper paymentMapper;
+
+    @Autowired
+    private AvailableDateMapper availableDateMapper;
 
     public List<OrderInfo> getOrders(Long userId, String userType) {
         if ("customer".equals(userType)) {
@@ -33,7 +45,54 @@ public class OrderService {
         }
     }
 
-    public Boolean crateOrder(OrderInfo orderInfo) {
-        return null;
+    @Transactional
+    public Boolean crateOrder(CreateOrderDTO createOrderDTO) {
+        Payment providerPayment = paymentMapper.selectOne(new LambdaQueryWrapper<Payment>()
+                .eq(Payment::getUserId, createOrderDTO.getProviderUserId()));
+        if (providerPayment == null) {
+            throw new RuntimeException("groomer has no payment method");
+        }
+        Payment consumerPayment = paymentMapper.selectOne(new LambdaQueryWrapper<Payment>()
+                .eq(Payment::getUserId, createOrderDTO.getConsumerUserId()));
+        if (consumerPayment == null) {
+            throw new RuntimeException("customer has no payment method");
+        }
+        Groomer groomer = groomerMapper.selectOne(new LambdaQueryWrapper<Groomer>()
+                .eq(Groomer::getUserId, createOrderDTO.getProviderUserId()));
+        BigDecimal serviceFee = groomer.getServiceFee();
+
+        providerPayment.setBalance(providerPayment.getBalance().add(serviceFee));
+        consumerPayment.setBalance(consumerPayment.getBalance().subtract(serviceFee));
+        paymentMapper.updateById(providerPayment);
+        paymentMapper.updateById(consumerPayment);
+
+        List<AvailableDate> availableDates = availableDateMapper.selectList(new LambdaQueryWrapper<AvailableDate>()
+                .eq(AvailableDate::getUserId, createOrderDTO.getProviderUserId()));
+        availableDates.forEach(availableDate -> {
+            if (availableDate.getAvailableDate().equals(createOrderDTO.getServiceTime())) {
+                availableDate.setStatus("ORDERED");
+                availableDateMapper.updateById(availableDate);
+            }
+        });
+
+        OrderInfo orderInfo = new OrderInfo();
+        BeanUtils.copyBeanProp(orderInfo, createOrderDTO);
+        orderInfo.setStatus("PENDING");
+        orderInfo.setId(null);
+        orderInfoMapper.insert(orderInfo);
+
+        return true;
+    }
+
+    public Boolean evaluateOrder(EvaluateOrderDTO evaluateOrderDTO) {
+        OrderInfo orderInfo = orderInfoMapper.selectById(evaluateOrderDTO.getOrderId());
+        if (orderInfo != null) {
+            BeanUtils.copyBeanProp(orderInfo, evaluateOrderDTO);
+            orderInfo.setStatus("FINISHED");
+            orderInfoMapper.updateById(orderInfo);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

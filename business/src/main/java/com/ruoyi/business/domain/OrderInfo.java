@@ -33,4 +33,6 @@ public class OrderInfo {
     private Date serviceTime;
 
     private Date createTime;
+
+    private String snapshot;
 }

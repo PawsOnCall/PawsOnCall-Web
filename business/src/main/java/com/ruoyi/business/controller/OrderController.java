@@ -1,6 +1,8 @@
 package com.ruoyi.business.controller;
 
 import com.ruoyi.business.domain.OrderInfo;
+import com.ruoyi.business.domain.dto.CreateOrderDTO;
+import com.ruoyi.business.domain.dto.EvaluateOrderDTO;
 import com.ruoyi.business.service.OrderService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -20,9 +22,14 @@ public class OrderController extends BaseController {
         return R.ok(orderService.getOrders(userId, userType));
     }
 
-    @PostMapping("/crateOrder")
-    public R<Boolean> crateOrder(@RequestBody OrderInfo orderInfo) {
-        return R.ok(orderService.crateOrder(orderInfo));
+    @PostMapping("/createOrder")
+    public R<Boolean> crateOrder(@RequestBody CreateOrderDTO createOrderDTO) {
+        return R.ok(orderService.crateOrder(createOrderDTO));
+    }
+
+    @PostMapping("/evaluateOrder")
+    public R<Boolean> evaluateOrder(@RequestBody EvaluateOrderDTO evaluateOrderDTO) {
+        return R.ok(orderService.evaluateOrder(evaluateOrderDTO));
     }
 
 }
