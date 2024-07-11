@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,7 +42,7 @@ public class OrderService {
             return orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
                     .eq(OrderInfo::getProviderUserId, userId));
         } else {
-            return null;
+            return new ArrayList<>();
         }
     }
 

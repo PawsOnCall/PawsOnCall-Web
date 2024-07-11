@@ -52,7 +52,7 @@ public class GroomerService {
             }
             return retVal;
         } else {
-            return null;
+            return new GroomerDTO();
         }
     }
 
@@ -61,7 +61,7 @@ public class GroomerService {
         Groomer groomer = new Groomer();
         BeanUtils.copyBeanProp(groomer, groomerDTO);
         GroomerDTO groomerDTOInDb = getProfile(groomerDTO.getUserId());
-        if (groomerDTOInDb == null) {
+        if (groomerDTOInDb.getUserId() == null) {
             UserInfo userInfo = userInfoMapper.selectOne(new LambdaQueryWrapper<UserInfo>().eq(UserInfo::getUserId, groomerDTO.getUserId()));
             BeanUtils.copyBeanProp(groomer, userInfo);
             groomer.setId(null);
@@ -112,7 +112,7 @@ public class GroomerService {
 
             return retVal;
         } else {
-            return null;
+            return new GroomerDashboardDTO();
         }
     }
 

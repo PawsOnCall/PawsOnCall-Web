@@ -45,7 +45,7 @@ public class CustomerService {
             }
             return retVal;
         } else {
-            return null;
+            return new CustomerDTO();
         }
     }
 
@@ -54,7 +54,7 @@ public class CustomerService {
         Customer customer = new Customer();
         BeanUtils.copyBeanProp(customer, customerDTO);
         CustomerDTO customerDTOInDb = getProfile(customerDTO.getUserId());
-        if (customerDTOInDb == null) {
+        if (customerDTOInDb.getUserId() == null) {
             UserInfo userInfo = userInfoMapper.selectOne(new LambdaQueryWrapper<UserInfo>().eq(UserInfo::getUserId, customerDTO.getUserId()));
             BeanUtils.copyBeanProp(customer, userInfo);
             customer.setId(null);
@@ -99,7 +99,7 @@ public class CustomerService {
             }
             return retVal;
         } else {
-            return null;
+            return new PetDTO();
         }
     }
 
@@ -107,7 +107,7 @@ public class CustomerService {
         Pet pet = new Pet();
         BeanUtils.copyBeanProp(pet, petDTO);
         PetDTO petDTOInDb = getPet(petDTO.getId());
-        if (petDTOInDb == null) {
+        if (petDTOInDb.getUserId() == null) {
             pet.setId(null);
             petMapper.insert(pet);
         } else {
@@ -154,7 +154,7 @@ public class CustomerService {
 
             return retVal;
         } else {
-            return null;
+            return new CustomerDashboardDTO();
         }
     }
 }
