@@ -6,6 +6,7 @@ import com.ruoyi.business.domain.dto.UserInfoDTO;
 import com.ruoyi.business.mapper.UserInfoMapper;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.RegisterBody;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.bean.BeanUtils;
 import com.ruoyi.framework.web.service.SysRegisterService;
 import com.ruoyi.system.mapper.SysUserMapper;
@@ -37,6 +38,7 @@ public class AccountService {
         SysUser sysUser = sysUserMapper.selectUserByUserName(userInfo.getEmail());
 
         userInfo.setUserId(sysUser.getUserId());
+        userInfo.setPassword(SecurityUtils.encryptPassword(userInfo.getPassword()));
         userInfoMapper.insert(userInfo);
         return true;
     }
