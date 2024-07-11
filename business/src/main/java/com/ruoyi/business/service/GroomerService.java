@@ -62,6 +62,8 @@ public class GroomerService {
         BeanUtils.copyBeanProp(groomer, groomerDTO);
         GroomerDTO groomerDTOInDb = getProfile(groomerDTO.getUserId());
         if (groomerDTOInDb == null) {
+            UserInfo userInfo = userInfoMapper.selectOne(new LambdaQueryWrapper<UserInfo>().eq(UserInfo::getUserId, groomerDTO.getUserId()));
+            BeanUtils.copyBeanProp(groomer, userInfo);
             groomer.setId(null);
             groomerMapper.insert(groomer);
         } else {

@@ -55,6 +55,8 @@ public class CustomerService {
         BeanUtils.copyBeanProp(customer, customerDTO);
         CustomerDTO customerDTOInDb = getProfile(customerDTO.getUserId());
         if (customerDTOInDb == null) {
+            UserInfo userInfo = userInfoMapper.selectOne(new LambdaQueryWrapper<UserInfo>().eq(UserInfo::getUserId, customerDTO.getUserId()));
+            BeanUtils.copyBeanProp(customer, userInfo);
             customer.setId(null);
             customerMapper.insert(customer);
         } else {

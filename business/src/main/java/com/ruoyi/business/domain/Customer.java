@@ -11,6 +11,12 @@ public class Customer {
 
     private Long userId;
 
+    private String firstName;
+
+    private String lastName;
+
+    private String email;
+
     private String addressLine1;
 
     private String addressLine2;
