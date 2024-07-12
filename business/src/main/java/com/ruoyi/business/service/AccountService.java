@@ -24,7 +24,7 @@ public class AccountService {
     @Autowired
     private SysUserMapper sysUserMapper;
 
-    public Boolean register(UserInfo userInfo) {
+    public UserInfo register(UserInfo userInfo) {
         UserInfo user = userInfoMapper.selectOne(new LambdaQueryWrapper<UserInfo>().eq(UserInfo::getEmail, userInfo.getEmail()));
         if (user != null) {
             throw new RuntimeException("email already existed");
@@ -40,7 +40,7 @@ public class AccountService {
         userInfo.setUserId(sysUser.getUserId());
         userInfo.setPassword(SecurityUtils.encryptPassword(userInfo.getPassword()));
         userInfoMapper.insert(userInfo);
-        return true;
+        return userInfo;
     }
 
     public UserInfoDTO getUserInfo(String email) {

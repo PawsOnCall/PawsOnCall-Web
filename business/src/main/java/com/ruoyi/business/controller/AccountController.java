@@ -16,7 +16,7 @@ public class AccountController extends BaseController {
 
     @PostMapping("/register")
     public R<Boolean> register(@RequestBody UserInfo userInfo) {
-        return R.ok(accountService.register(userInfo));
+        return R.ok(accountService.register(userInfo) != null);
     }
 
     @GetMapping("/getUserInfo")

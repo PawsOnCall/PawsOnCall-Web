@@ -38,6 +38,9 @@ public class GroomerService {
     @Autowired
     private CustomerService customerService;
 
+    @Autowired
+    private AccountService accountService;
+
     public GroomerDTO getProfile(Long userId) {
         Groomer groomer = groomerMapper.selectOne(new LambdaQueryWrapper<Groomer>().eq(Groomer::getUserId, userId));
         if (groomer != null) {
@@ -118,16 +121,13 @@ public class GroomerService {
 
     @Transactional
     public Boolean register(GroomerDTO groomerDTO) {
-        saveProfile(groomerDTO);
-        UserInfo userInfo = userInfoMapper.selectOne(new LambdaQueryWrapper<UserInfo>()
-                .eq(UserInfo::getUserId, groomerDTO.getUserId()));
-        if (userInfo != null) {
-            userInfo.setUserType("groomer");
-            userInfoMapper.updateById(userInfo);
-            return true;
-        } else {
-            return false;
-        }
+        UserInfo userInfo = new UserInfo();
+        BeanUtils.copyBeanProp(userInfo, groomerDTO);
+        userInfo.setUserType("groomer");
+        userInfo = accountService.register(userInfo);
+
+        groomerDTO.setUserId(userInfo.getUserId());
+        return saveProfile(groomerDTO);
     }
 
     public List<AvailableDate> getAvailableDate(Long userId) {

@@ -8,4 +8,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class GroomerDTO extends Groomer {
     private String photo;
+
+    private String password;
 }
