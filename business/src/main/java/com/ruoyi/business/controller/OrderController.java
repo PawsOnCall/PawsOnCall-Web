@@ -18,8 +18,8 @@ public class OrderController extends BaseController {
     private OrderService orderService;
 
     @GetMapping("/getOrders")
-    public R<List<OrderInfo>> getOrders(Long userId, String userType) {
-        return R.ok(orderService.getOrders(userId, userType));
+    public R<List<OrderInfo>> getOrders(Long userId, String userType, String status) {
+        return R.ok(orderService.getOrders(userId, userType, status));
     }
 
     @PostMapping("/createOrder")

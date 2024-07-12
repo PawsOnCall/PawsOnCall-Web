@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -109,9 +110,20 @@ public class GroomerService {
                 retVal.setBalance(payment.getBalance());
             }
 
-            retVal.setNotifications(orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
+            List<OrderInfo> pendingOrders = orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
                     .eq(OrderInfo::getProviderUserId, userId)
-                    .eq(OrderInfo::getStatus, "PENDING")));
+                    .eq(OrderInfo::getStatus, "PENDING"));
+            retVal.setNotifications(pendingOrders);
+
+            retVal.setUpcomingEarning(pendingOrders.stream()
+                    .map(orderInfo -> {
+                        if (orderInfo.getGroomerFee() == null) {
+                            return BigDecimal.ZERO;
+                        } else {
+                            return orderInfo.getGroomerFee();
+                        }
+                    })
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
 
             return retVal;
         } else {

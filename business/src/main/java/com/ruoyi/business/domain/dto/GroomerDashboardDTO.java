@@ -18,5 +18,7 @@ public class GroomerDashboardDTO {
 
     private BigDecimal balance;
 
+    private BigDecimal upcomingEarning;
+
     private List<OrderInfo> notifications;
 }

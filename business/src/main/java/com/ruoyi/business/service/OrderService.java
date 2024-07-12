@@ -11,6 +11,7 @@ import com.ruoyi.business.mapper.AvailableDateMapper;
 import com.ruoyi.business.mapper.GroomerMapper;
 import com.ruoyi.business.mapper.OrderInfoMapper;
 import com.ruoyi.business.mapper.PaymentMapper;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.bean.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,13 +35,27 @@ public class OrderService {
     @Autowired
     private AvailableDateMapper availableDateMapper;
 
-    public List<OrderInfo> getOrders(Long userId, String userType) {
+    public List<OrderInfo> getOrders(Long userId, String userType, String status) {
         if ("customer".equals(userType)) {
-            return orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
-                    .eq(OrderInfo::getConsumerUserId, userId));
+            if (StringUtils.isEmpty(status)) {
+                return orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
+                        .eq(OrderInfo::getConsumerUserId, userId));
+            } else {
+                return orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
+                        .eq(OrderInfo::getConsumerUserId, userId)
+                        .eq(OrderInfo::getStatus, status)
+                );
+            }
         } else if ("groomer".equals(userType)) {
-            return orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
-                    .eq(OrderInfo::getProviderUserId, userId));
+            if (StringUtils.isEmpty(status)) {
+                return orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
+                        .eq(OrderInfo::getProviderUserId, userId));
+            } else {
+                return orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
+                        .eq(OrderInfo::getProviderUserId, userId)
+                        .eq(OrderInfo::getStatus, status)
+                );
+            }
         } else {
             return new ArrayList<>();
         }
@@ -78,6 +93,7 @@ public class OrderService {
 
         OrderInfo orderInfo = new OrderInfo();
         BeanUtils.copyBeanProp(orderInfo, createOrderDTO);
+        orderInfo.setGroomerFee(serviceFee);
         orderInfo.setStatus("PENDING");
         orderInfo.setId(null);
         orderInfoMapper.insert(orderInfo);
