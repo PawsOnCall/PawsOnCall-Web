@@ -12,4 +12,5 @@ public class UserInfoDTO {
 
     private String lastName;
 
+    private String token;
 }

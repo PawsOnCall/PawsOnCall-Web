@@ -8,6 +8,8 @@ import com.ruoyi.common.core.domain.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/account")
 public class AccountController extends BaseController {
@@ -22,6 +24,11 @@ public class AccountController extends BaseController {
     @GetMapping("/getUserInfo")
     public R<UserInfoDTO> getUserInfo(String email) {
         return R.ok(accountService.getUserInfo(email));
+    }
+
+    @PostMapping("/googleLogin")
+    public R<UserInfoDTO> googleLogin(@RequestBody Map<String, String> payload) {
+        return R.ok(accountService.googleLogin(payload.get("credential")));
     }
 }
 

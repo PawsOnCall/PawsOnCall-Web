@@ -9,14 +9,10 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GroomerDTO extends Groomer {
-    private String photo;
-
-    private String password;
+public class GroomerListDTO extends Groomer {
+    List<AvailableDate> availableDates;
 
     private Double totalStars;
 
     private Long totalComments;
-
-    private List<AvailableDate> availableDates;
 }

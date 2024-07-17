@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Sign-In</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div id="g_id_onload"
+     data-client_id="752262675079-50infhc9612qnojv0kjjhpcjs05oq0k2.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse">
+</div>
+<div class="g_id_signin" data-type="standard"></div>
+
+<script>
+  function handleCredentialResponse(response) {
+    // 发送登录凭证到父窗口
+    window.parent.postMessage(response, "*");
+  }
+
+  window.onload = function () {
+    google.accounts.id.initialize({
+      client_id: "752262675079-50infhc9612qnojv0kjjhpcjs05oq0k2.apps.googleusercontent.com",
+      callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+      document.querySelector(".g_id_signin"),
+      {theme: "outline", size: "large"}  // 可选项
+    );
+  };
+</script>
+</body>
+</html>
