@@ -34,5 +34,13 @@ public class OrderInfo {
 
     private Date createTime;
 
+    private Date dropOffTimeStart;
+
+    private Date dropOffTimeEnd;
+
+    private Date pickUpTimeStart;
+
+    private Date pickUpTimeEnd;
+
     private String snapshot;
 }

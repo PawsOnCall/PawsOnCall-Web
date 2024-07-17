@@ -7,6 +7,7 @@ import com.ruoyi.business.domain.OrderInfo;
 import com.ruoyi.business.domain.Payment;
 import com.ruoyi.business.domain.dto.CreateOrderDTO;
 import com.ruoyi.business.domain.dto.EvaluateOrderDTO;
+import com.ruoyi.business.domain.dto.OrderInfoDTO;
 import com.ruoyi.business.mapper.AvailableDateMapper;
 import com.ruoyi.business.mapper.GroomerMapper;
 import com.ruoyi.business.mapper.OrderInfoMapper;
@@ -34,6 +35,12 @@ public class OrderService {
 
     @Autowired
     private AvailableDateMapper availableDateMapper;
+
+    @Autowired
+    private GroomerService groomerService;
+
+    @Autowired
+    private CustomerService customerService;
 
     public List<OrderInfo> getOrders(Long userId, String userType, String status) {
         if ("customer".equals(userType)) {
@@ -111,5 +118,14 @@ public class OrderService {
         } else {
             return false;
         }
+    }
+
+    public OrderInfoDTO getOrderDetail(Long id) {
+        OrderInfoDTO retVal = new OrderInfoDTO();
+        OrderInfo orderInfo = orderInfoMapper.selectById(id);
+        BeanUtils.copyBeanProp(retVal, orderInfo);
+        retVal.setGroomerDashboardDTO(groomerService.dashboard(orderInfo.getProviderUserId()));
+        retVal.setCustomerDashboardDTO(customerService.dashboard(orderInfo.getConsumerUserId()));
+        return retVal;
     }
 }

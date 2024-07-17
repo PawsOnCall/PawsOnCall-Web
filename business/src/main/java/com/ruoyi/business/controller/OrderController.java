@@ -3,6 +3,7 @@ package com.ruoyi.business.controller;
 import com.ruoyi.business.domain.OrderInfo;
 import com.ruoyi.business.domain.dto.CreateOrderDTO;
 import com.ruoyi.business.domain.dto.EvaluateOrderDTO;
+import com.ruoyi.business.domain.dto.OrderInfoDTO;
 import com.ruoyi.business.service.OrderService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.R;
@@ -20,6 +21,11 @@ public class OrderController extends BaseController {
     @GetMapping("/getOrders")
     public R<List<OrderInfo>> getOrders(Long userId, String userType, String status) {
         return R.ok(orderService.getOrders(userId, userType, status));
+    }
+
+    @GetMapping("/getOrderDetail")
+    public R<OrderInfoDTO> getOrderDetail(Long id) {
+        return R.ok(orderService.getOrderDetail(id));
     }
 
     @PostMapping("/createOrder")

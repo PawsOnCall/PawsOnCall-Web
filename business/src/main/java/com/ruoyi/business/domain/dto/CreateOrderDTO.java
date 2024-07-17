@@ -16,5 +16,13 @@ public class CreateOrderDTO {
 
     private Date serviceTime;
 
+    private Date dropOffTimeStart;
+
+    private Date dropOffTimeEnd;
+
+    private Date pickUpTimeStart;
+
+    private Date pickUpTimeEnd;
+
     private String snapshot;
 }
