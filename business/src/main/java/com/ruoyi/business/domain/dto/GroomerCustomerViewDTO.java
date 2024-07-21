@@ -16,6 +16,8 @@ public class GroomerCustomerViewDTO extends Groomer {
 
     private List<Review> reviews;
 
+    private double star;
+
     @Data
     public static class Review {
         private Long consumerUserId;

@@ -10,6 +10,7 @@ import com.ruoyi.business.domain.dto.*;
 import com.ruoyi.business.mapper.*;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.bean.BeanUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -18,7 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.regex.Matcher;
@@ -54,9 +58,10 @@ public class GroomerService {
     @Value("${ai.url}")
     private String aiUrl;
 
-    public IPage<GroomerDTO> page(int pageNum, int pageSize) {
+    @Transactional
+    public IPage<GroomerDTO> page(int pageNum, int pageSize, String address, String serviceType, Date startDate, Date endDate) {
         Page<GroomerDTO> page = new Page<>(pageNum, pageSize);
-        IPage<GroomerDTO> retVal = groomerMapper.page(page);
+        IPage<GroomerDTO> retVal = groomerMapper.page(page, address, serviceType, startDate, endDate);
         retVal.getRecords().forEach(groomerDTO -> {
             List<OrderInfo> orderInfos = orderInfoMapper.selectList(new LambdaQueryWrapper<OrderInfo>()
                     .eq(OrderInfo::getProviderUserId, groomerDTO.getUserId())
@@ -137,7 +142,9 @@ public class GroomerService {
 
             Payment payment = paymentMapper.selectOne(new LambdaQueryWrapper<Payment>()
                     .eq(Payment::getUserId, userId));
-            if (payment != null) {
+            if (payment == null) {
+                retVal.setBalance(new BigDecimal(0));
+            } else {
                 retVal.setBalance(payment.getBalance());
             }
 
@@ -173,9 +180,24 @@ public class GroomerService {
         return saveProfile(groomerDTO);
     }
 
+    @Transactional
     public List<AvailableDate> getAvailableDate(Long userId) {
-        return availableDateMapper.selectList(new LambdaQueryWrapper<AvailableDate>()
+        List<AvailableDate> availableDates = availableDateMapper.selectList(new LambdaQueryWrapper<AvailableDate>()
                 .eq(AvailableDate::getUserId, userId));
+        if (CollectionUtils.isEmpty(availableDates)) {
+            availableDates = new ArrayList<>();
+            LocalDate today = LocalDate.now();
+            for (int i = 0; i < 14; i++) {
+                LocalDate date = today.plusDays(i);
+                AvailableDate availableDate = new AvailableDate();
+                Date dateToAdd = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                availableDate.setUserId(userId);
+                availableDate.setAvailableDate(dateToAdd);
+                availableDates.add(availableDate);
+            }
+            setAvailableDate(availableDates);
+        }
+        return availableDates;
     }
 
     @Transactional
@@ -192,6 +214,7 @@ public class GroomerService {
         return true;
     }
 
+    @Transactional
     public GroomerCustomerViewDTO customerView(Long userId) {
         GroomerCustomerViewDTO retVal = new GroomerCustomerViewDTO();
         GroomerDTO profile = getProfile(userId);
@@ -209,9 +232,16 @@ public class GroomerService {
             return review;
         }).collect(Collectors.toList()));
 
+        if (CollectionUtils.isEmpty(retVal.getReviews())) {
+            retVal.setStar(0.0d);
+        } else {
+            retVal.setStar(retVal.getReviews().stream().filter(review -> review.getReviewStars() != null).mapToInt(GroomerCustomerViewDTO.Review::getReviewStars).average().orElse(0.0));
+        }
+
         return retVal;
     }
 
+    @Transactional
     public List<GroomerListDTO> list() {
         List<Groomer> list = groomerMapper.selectList(null);
         return list.stream().map(groomer -> {
@@ -235,6 +265,7 @@ public class GroomerService {
         }).collect(Collectors.toList());
     }
 
+    @Transactional
     public IPage<GroomerDTO> recommend(String message) {
         List<GroomerDTO> retVal = new ArrayList<>();
         String url = aiUrl;

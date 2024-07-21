@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.business.mapper.GroomerMapper">
+    <select id="page" resultType="com.ruoyi.business.domain.dto.GroomerDTO">
+        SELECT g.*, p.base64 AS photo
+        FROM groomer g
+        LEFT JOIN photo p ON g.id = p.target_id
+        WHERE p.type = 'groomer'
+        <if test="startDate != null and endDate != null">
+            AND EXISTS (
+            SELECT 1
+            FROM available_date ad
+            WHERE ad.user_id = g.user_id
+            AND ad.available_date BETWEEN #{startDate} AND #{endDate}
+            )
+        </if>
+        <if test="address != null and address != ''">
+            AND (
+            g.mailing_address LIKE CONCAT('%', #{address}, '%')
+            OR g.street LIKE CONCAT('%', #{address}, '%')
+            OR g.street_number LIKE CONCAT('%', #{address}, '%')
+            OR g.locality LIKE CONCAT('%', #{address}, '%')
+            OR g.post_code LIKE CONCAT('%', #{address}, '%')
+            )
+        </if>
+        <if test="serviceType != null and serviceType != ''">
+            AND g.service_type = #{serviceType}
+        </if>
+    </select>
+
+    <select id="getGroomer" resultType="com.ruoyi.business.domain.dto.GroomerDTO">
+        SELECT g.*, p.base64 AS photo
+        FROM groomer g
+                 LEFT JOIN photo p ON g.id = p.target_id
+        WHERE p.type = 'groomer'
+          AND g.user_id = #{userId}
+    </select>
+
+</mapper>

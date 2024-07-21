@@ -12,6 +12,7 @@ import com.ruoyi.common.core.domain.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -22,8 +23,13 @@ public class GroomerController extends BaseController {
     private GroomerService groomerService;
 
     @GetMapping("/page")
-    public IPage<GroomerDTO> page(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
-        return groomerService.page(pageNum, pageSize);
+    public IPage<GroomerDTO> page(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize,
+                                  @RequestParam(required = false) String address,
+                                  @RequestParam(required = false) String serviceType,
+                                  @RequestParam(required = false) Date startDate,
+                                  @RequestParam(required = false) Date endDate
+    ) {
+        return groomerService.page(pageNum, pageSize, address, serviceType, startDate, endDate);
     }
 
     @GetMapping("/recommend")

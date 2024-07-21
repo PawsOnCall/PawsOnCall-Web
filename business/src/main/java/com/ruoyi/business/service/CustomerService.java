@@ -7,10 +7,13 @@ import com.ruoyi.business.domain.dto.CustomerDashboardDTO;
 import com.ruoyi.business.domain.dto.PetDTO;
 import com.ruoyi.business.mapper.*;
 import com.ruoyi.common.utils.bean.BeanUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -146,10 +149,17 @@ public class CustomerService {
 
             Payment payment = paymentMapper.selectOne(new LambdaQueryWrapper<Payment>()
                     .eq(Payment::getUserId, userId));
+            if (payment == null) {
+                retVal.setBalance(new BigDecimal(0));
+            } else {
             retVal.setBalance(payment.getBalance());
+            }
 
             List<Pet> pets = petMapper.selectList(new LambdaQueryWrapper<Pet>()
                     .eq(Pet::getUserId, userId));
+            if (CollectionUtils.isEmpty(pets)) {
+                pets = new ArrayList<>();
+            }
             retVal.setPets(pets.stream().map(pet -> getPet(pet.getId())).collect(Collectors.toList()));
 
             return retVal;

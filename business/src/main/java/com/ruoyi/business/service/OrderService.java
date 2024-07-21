@@ -2,7 +2,6 @@ package com.ruoyi.business.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.business.domain.AvailableDate;
-import com.ruoyi.business.domain.Groomer;
 import com.ruoyi.business.domain.OrderInfo;
 import com.ruoyi.business.domain.Payment;
 import com.ruoyi.business.domain.dto.CreateOrderDTO;
@@ -20,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -80,9 +80,8 @@ public class OrderService {
         if (consumerPayment == null) {
             throw new RuntimeException("customer has no payment method");
         }
-        Groomer groomer = groomerMapper.selectOne(new LambdaQueryWrapper<Groomer>()
-                .eq(Groomer::getUserId, createOrderDTO.getProviderUserId()));
-        BigDecimal serviceFee = groomer.getServiceFee();
+
+        BigDecimal serviceFee = createOrderDTO.getServiceFee();
 
         providerPayment.setBalance(providerPayment.getBalance().add(serviceFee));
         consumerPayment.setBalance(consumerPayment.getBalance().subtract(serviceFee));
@@ -103,6 +102,7 @@ public class OrderService {
         orderInfo.setGroomerFee(serviceFee);
         orderInfo.setStatus("PENDING");
         orderInfo.setId(null);
+        orderInfo.setCreateTime(new Date());
         orderInfoMapper.insert(orderInfo);
 
         return true;
